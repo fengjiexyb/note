@@ -1,0 +1,36 @@
+VMware下Ubuntu安装共享文件夹
+
+参考网址：
+http://blog.sina.com.cn/s/blog_453b9efb01019hpl.html
+https://blog.kuoruan.com/58.html
+
+第一步：启动Ubuntu 12.04(其他版本的Ubuntu操作差不多)
+    1. 在VMware虚拟机界面，点VM->Install VMware Tools。之后，点击Ubuntu 窗口中主文件 按钮然后再左边会看见设备里有VMware tools文件夹（如果很久还没有反应，就取消安装，重启虚拟机再安装），双击打开（一般会自动打开了文件夹），把压缩文件拷贝到主文件夹
+    2. 打开Terminal终端，进入主文件夹中，输入以下命令：
+           a) sudo tar zxf VMwareTools-xxx.tar.gz (注：xxx为版本号)
+           b) cd /vmware-tools-distrib
+           c) sudo ./vmware-install.pl
+        安装过程中一直按enter即可，或者输入【】提示yes和no，直到安装完毕。
+        2.1）提示：what is the location of the “ifconfig”program on your machine(http://blog.csdn.net/ANXIN997483092/article/details/78057658)
+          输入yes处理
+
+第二步：设置共享文件夹的目录（可以在第一步先做此项）
+        1. 将Ubuntu关机（power off），否则不能添加共享文件夹
+        2. 在VMware虚拟机窗口，选择VM->Settings->Options->Shared Folders
+        3. 点右边的Add，点Next->选择Win7共享目录的路径，然后点Next->选中Enable this share->Finish
+        4. 在VM->Settings->Options->Shared Folders窗口的右边，Folder sharing栏里选择Always enabled
+        5. 点 OK 确定退出
+
+第三步：在Ubuntu虚拟机下安装插件
+        1.	先换源（默认国外的）
+        2.	sudo apt-get update
+        3.	sudo apt-cache search open-vm
+        4.	sudo apt-get install open-vm-tools open-vm-tools-desktop open-vm-toolbox open-vm-dkms（不需要open-vm-tools-dev）
+        5.	执行 $ sudo mkdir /mnt/linuxShare
+        6. 执行 vmhgfs-fuse .host:/linuxShare /mnt/linuxShare -o subtype=vmhgfs-fuse,allow_other
+          （linuxShare是共享文件夹名）
+        7. 注意：虚拟机下次启动时，上一步的挂载失效！
+          固定挂载，需直接在/etc/fstab里增加自动挂载项：
+          .host:/ linuxShare /mnt/linuxShare fuse.vmhgfs-fuse allow_other,defaults   0  0
+
+至此就可以在/mnt/linuxShare目录下看到Win7的共享文件夹目录。无论在linux还是在Win7下修改共享文件夹里的文件，都会在另一个系统同时修改。
